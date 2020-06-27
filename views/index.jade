@@ -1,0 +1,11 @@
+extends layout
+
+block content
+  h1= title
+  div(class="login-form")
+    form(action="auth" method="POST" )
+      div.input
+        input(type="text" name="username" placeholder="Username" required)
+        input(type="password" name="password" placeholder="Password" required)
+      div.actions
+        input(type="submit", value="Login")
