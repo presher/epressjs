@@ -21,10 +21,10 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-router.get('/images/jwt',  (req, res) => {
-  res.send('Insert of photograph is successfull')
+// router.get('/images/',  (req, res) => {
+//   res.send('Insert of photograph is successfull')
   
-})
+// })
 
 router.post('/auth', (req, res) => {
   if(!req.body.username || !req.body.password){
@@ -64,21 +64,20 @@ router.post('/auth', (req, res) => {
           username,
           password
         }
-        jwt.sign({user}, process.env.EXPRESS_APP_SECRET_KEY, { expiresIn: '30s'}, (err, token) => {
-          if (err) console.log(err)
-          else{
-            console.log('pushing token to cookie storage')
-            res.cookie('token', token, { httpOnly: true });
-            
-            res.sendFile(path.join(__dirname, '../views', 'images.html'));
-          }
-        });
-        connection.end();
+
+        let token = jwt.sign({user}, process.env.EXPRESS_APP_SECRET_KEY, { expiresIn: '10m'}, (err, token) => {
+            if (err) console.log(err)
+            else{
+              console.log('pushing token to cookie storage')
+              res.cookie('token', token, { httpOnly: true });
+              res.send(token);
+            }
+          });
         
+        connection.end();
       })
     })
   }
-  
 })
 
 
@@ -102,9 +101,39 @@ router.get('/images/add', verifyToken, (req, resp) => {
   })
 })
 
+router.get('/allImages', (reg, res) => {
+  var connection = mysql.createConnection({
+    host: process.env.EXPRESS_APP_DB_HOST,
+    user: process.env.EXPRESS_APP_GET_USER,
+    password: process.env.EXPRESS_APP_GET_USER_PW,
+    database: process.env.EXPRESS_APP_DB_NAME
+  })
+  
+  const SELECT_ALL_IMAGES_QUERY = 'SELECT image FROM photographs'
+  
+  connection.connect(err => {
+      if (err) console.log('ERROR', err)
+      else
+      console.log('Connection Success');
+  })
+
+connection.query(SELECT_ALL_IMAGES_QUERY, function (err, results) {
+  if (err){
+      return res.send(err)
+  }
+else{
+    res.send(results)
+  }
+  connection.end();
+})
+})
+
 router.get('/images', verifyToken, (req,res) => {
   jwt.verify(req.token, process.env.EXPRESS_APP_SECRET_KEY, (err, authData) => {
-    if (err) res.sendStatus(403)
+    if (err) {
+      console.log(err)
+    res.sendStatus(403)
+    }
     else{
       let tokenParts = parseJwt(req.token);
       var connection = mysql.createConnection({
@@ -116,26 +145,38 @@ router.get('/images', verifyToken, (req,res) => {
         
         const SELECT_ALL_IMAGES_QUERY = 'SELECT * FROM photographs'
         
-        // connection.connect(err => {
-        //     if (err) console.log('ERROR', err)
-        //     else
-        //     console.log('Connection Success');
-        // })
+        connection.connect(err => {
+            if (err) console.log('ERROR', err)
+            else
+            console.log('Connection Success');
+        })
       
       connection.query(SELECT_ALL_IMAGES_QUERY, function (err, results) {
         if (err){
             return res.send(err)
         }
       else{
-          res.json({
-              data: results
-          })
+          res.send(results)
         }
-        connect.end();
+        connection.end();
       })
     }
   })
   
+});
+
+router.get('/users', function(req, res, next) {
+	// Comment out this line:
+  //res.send('respond with a resource');
+
+  // And insert something like this instead:
+  res.json([{
+  	id: 1,
+  	username: "samsepi0l"
+  }, {
+  	id: 2,
+  	username: "D0loresH4ze"
+  }]);
 });
 
 // 

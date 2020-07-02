@@ -4,8 +4,8 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 const bodyParser = require("body-parser");
 var logger = require('morgan');
-const jwt = require('jsonwebtoken')
 var session = require('express-session');
+require('dotenv').config();
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -44,11 +44,11 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-app.use(session({
-	secret: 'singedIn',
-	resave: true,
-	saveUninitialized: true
-}));
+// app.use(session({
+// 	secret: 'singedIn',
+// 	resave: true,
+// 	saveUninitialized: true
+// }));
 
 // app.get('/', function(request, response) {
 // 	response.sendFile(path.join('/login.html'));
