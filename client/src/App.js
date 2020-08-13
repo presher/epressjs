@@ -2,12 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Nav, Navbar, NavItem } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import { AppContext } from "./libs/contextLib";
-import login from './containers/Login'
 import Routes from "./Routes";
 import { Link, useHistory } from "react-router-dom";
 import "./App.css";
-
-
 
 
 function App() {
@@ -21,8 +18,8 @@ function App() {
   
   async function onLoad() {
     try {
-      // await Auth.currentSession();
-      login.getToken()
+      // console.log(login.getJwt())
+      // await login.
       userHasAuthenticated(true);
     }
     catch(e) {
@@ -30,7 +27,6 @@ function App() {
         alert(e);
       }
     }
-  
     setIsAuthenticating(false);
   }
   
@@ -40,6 +36,13 @@ function App() {
     userHasAuthenticated(false);
     history.push("/login");
   }
+
+  async function handleInsert() {
+    history.push("/insert");
+  }
+  // async function handleEdit() {
+  //   history.push("/edit");
+  // }
     return (
       !isAuthenticating &&
       <div className="App container">
@@ -60,6 +63,10 @@ function App() {
                     </LinkContainer>
                   </>
               }
+              {
+                isAuthenticated ? <NavItem onClick={handleInsert}>Upload Image</NavItem> : ""
+              }
+              
             </Nav>
           </Navbar.Collapse>
         </Navbar>

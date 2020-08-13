@@ -27,44 +27,69 @@ import "./Login.css";
 
 
 export default function Login() {
+  const storedJwt = localStorage.getItem('token');
+  const [jwt, setJwt] = useState(storedJwt || null);
   const { userHasAuthenticated } = useAppContext();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const history = useHistory();
-
   function validateForm() {
     return username.length > 0 && password.length > 0;
   }
 
-  function handleSubmit(event) {
+  // if(jwt !== null){
+  //   console.log('hello');
+  //   userHasAuthenticated(true);
+  //   history.push("/");
+  // }else{
+  //   history.push("/login");
+  // }
+
+  async function handleSubmit(event) {
     event.preventDefault();
     try{
-    getJwt();
-    userHasAuthenticated(true);
-    history.push("/");
+    let confirmed = await getJwt();
+    if(confirmed){
+      userHasAuthenticated(true);
+      history.push("/");
+    }
+    else{
+      history.push("/login");
+    }
     }
     catch(e){
       alert(e.message)
     }
   }
 
-  const storedJwt = localStorage.getItem('token');
-  const [jwt, setJwt] = useState(storedJwt || null);
-  const getJwt = async () => {
-      // const { data } = await axios.get(`${apiURL}/auth`);
-      console.log(username);
+  
+   async function getJwt() {
+    try{
       let token = await axios({
         method: 'post',
         url: `${apiURL}/auth`,
         data: {
           username,
           password
+        },
+        headers:{
+          "Access-Control-Allow-Origin":"*"
         }
       })
-      console.log(token.data);
+      if(token === 'unauthorized'){
+        return false;
+      }
       localStorage.setItem('token', token.data);
       setJwt(token.data);
+      return true;
+    }
+    catch(err){
+      return false;
+    }
     };
+
+    
+    
   
     return (
            
